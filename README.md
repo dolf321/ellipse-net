@@ -8,9 +8,9 @@ images: results/many_people_horse.png, results/multiple_cars.png, results/person
 -->
 
 
-<h1 align="center">YOLOv1</h1>
+<h1 align="center">Ellipse-Net</h1>
            
-PyTorch implementation of the YOLO architecture presented in "You Only Look Once: Unified, Real-Time Object Detection" by Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi
+PyTorch implementation of the Ellipse-Net, and the notebook showcasing all the test functions is in [main.ipynb](main.ipynb)
 
 
 ## Methods
@@ -24,12 +24,10 @@ Overall, the bounding boxes look convincing, though it is interesting to note th
 Additionally, the fully vectorized `SumSquaredLoss` function achieves roughly a 4x speedup in training time compared to using a for-loop to determine bounding box responsibility.
 
 <div align="center">
-    <img src="results/many_people_horse.png" width="49%" />
-    <img src="results/multiple_cars.png" width="49%" />
-    <img src="results/person_motorbike.png" width="49%" />
-    <img src="results/multiple_people.png" width="49%" />
-    <img src="results/many_people_motorbike.png" width="49%" />
-    <img src="results/many_people.png" width="49%" />
+    <img src="results/1.png" width="49%" />
+    <img src="results/5.png" width="49%" />
+    <img src="results/8.png" width="49%" />
+    <img src="results/9.png" width="49%" />
 </div>
 
 
@@ -45,28 +43,13 @@ Here's a great visual from [2]:
     <img src="resources/intersection_over_union.png" height="250px" />
 </div>
 
-### Precision
-Measures how much you can trust a Positive prediction from the model. Out of all positive predictions, calculates what
-proportion are correctly identified.
-
-<div align="center">
-    <img src="resources/precision.png" height="100px" />
-</div>
-
-
-### Recall
-Measures how well the model does in finding all the positives. `TP` gives the number of correct finds, and `FN` gives
-the number of objects that were present but missed by the model. Together, `TP + FN` equals the total number of labeled objects.
-
-<div align="center">
-    <img src="resources/recall.png" height="100px" />
-</div>
-
 
 ## References
 [[1](https://arxiv.org/abs/1506.02640)] Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi. _You Only Look Once: Unified, Real-Time Object Detection_. arXiv:1506.02640v5 [cs.CV] 9 May 2016
 
 [[2](https://towardsdatascience.com/map-mean-average-precision-might-confuse-you-5956f1bfa9e2)] Towards Datascience. _mAP (mean Average Precision) might confuse you!_
+
+[[3](https://github.com/tanjeffreyz/yolo-v1)] Yolov1 github implementation.
 
 <!-- 
 [[2](https://arxiv.org/abs/1612.08242)] Joseph Redmon, Ali Farhadi. _YOLO9000: Better, Faster, Stronger_. arXiv:1612.08242v1 [cs.CV] 25 Dec 2016

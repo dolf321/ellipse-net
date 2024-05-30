@@ -2,18 +2,20 @@ import torch
 import config
 from torch import nn as nn
 from torch.nn import functional as F
-from utils import get_iou, bbox_attr
+from utils import bbox_attr, get_ellipse_iou
 
 
 class SumSquaredErrorLoss(nn.Module):
-    def __init__(self):
+    def __init__(self, step_size=5):
         super().__init__()
         self.l_coord = 5
+        self.l_angle = 1
         self.l_noobj = 0.5
+        self.step_size = step_size
 
     def forward(self, p, a):
         # Calculate IOU of each predicted bbox against the ground truth bbox
-        iou = get_iou(p, a)                     # (batch, S, S, B, B)
+        iou = get_ellipse_iou(p, a, step=self.step_size) # (batch, S, S, B, B)
         max_iou = torch.max(iou, dim=-1)[0]     # (batch, S, S, B)
 
         # Get masks
@@ -40,6 +42,20 @@ class SumSquaredErrorLoss(nn.Module):
         pos_losses = x_losses + y_losses
         # print('pos_losses', pos_losses.item())
 
+        angle_losses = mse_loss(
+            obj_ij * bbox_attr(p, 5),
+            obj_ij * bbox_attr(a, 5)
+        )
+        # radians_p = bbox_attr(p, 5) * 3.14159
+        # radians_a = bbox_attr(a, 5) * 3.14159
+        # angle_losses = mse_loss(
+        #     obj_ij * torch.cos(radians_p),
+        #     obj_ij * torch.cos(radians_a)
+        # ) + mse_loss(
+        #     obj_ij * torch.sin(radians_p),
+        #     obj_ij * torch.sin(radians_a)
+        # )
+
         # Bbox dimension losses
         p_width = bbox_attr(p, 2)
         a_width = bbox_attr(a, 2)
@@ -53,7 +69,7 @@ class SumSquaredErrorLoss(nn.Module):
             obj_ij * torch.sign(p_height) * torch.sqrt(torch.abs(p_height) + config.EPSILON),
             obj_ij * torch.sqrt(a_height)
         )
-        dim_losses = width_losses + height_losses
+        dim_losses = width_losses + height_losses + angle_losses
         # print('dim_losses', dim_losses.item())
 
         # Confidence losses (target confidence is IOU)

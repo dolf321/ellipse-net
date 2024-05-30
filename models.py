@@ -8,9 +8,11 @@ from torchvision.models import resnet50, ResNet50_Weights
 #       Transfer Learning       #
 #################################
 class YOLOv1ResNet(nn.Module):
-    def __init__(self):
+    def __init__(self, model_path=None):
         super().__init__()
-        self.depth = config.B * 5 + config.C
+        if model_path is not None:
+            self.load_state_dict(torch.load(model_path))
+        self.depth = config.B * 6 + config.C
 
         # Load backbone ResNet
         backbone = resnet50(weights=ResNet50_Weights.DEFAULT)
@@ -37,7 +39,7 @@ class DetectionNet(nn.Module):
         super().__init__()
 
         inner_channels = 1024
-        self.depth = 5 * config.B + config.C
+        self.depth = 6 * config.B + config.C
         self.model = nn.Sequential(
             nn.Conv2d(in_channels, inner_channels, kernel_size=3, padding=1),
             nn.LeakyReLU(negative_slope=0.1),
@@ -54,7 +56,7 @@ class DetectionNet(nn.Module):
             nn.Flatten(),
 
             nn.Linear(7 * 7 * inner_channels, 4096),
-            # nn.Dropout(),
+            # nn.Dropout(0.4),
             nn.LeakyReLU(negative_slope=0.1),
 
             nn.Linear(4096, config.S * config.S * self.depth)
@@ -71,10 +73,11 @@ class DetectionNet(nn.Module):
 #       From Scratch      #
 ###########################
 class YOLOv1(nn.Module):
-    def __init__(self):
+    def __init__(self, model_path=None):
         super().__init__()
-        self.depth = config.B * 5 + config.C
-
+        if model_path is not None:
+            self.load_state_dict(torch.load(model_path))
+        self.depth = config.B * 6 + config.C
         layers = [
             # Probe(0, forward=lambda x: print('#' * 5 + ' Start ' + '#' * 5)),
             nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3),                   # Conv 1
@@ -137,7 +140,7 @@ class YOLOv1(nn.Module):
         layers += [
             nn.Flatten(),
             nn.Linear(config.S * config.S * 1024, 4096),                            # Linear 1
-            nn.Dropout(),
+            # nn.Dropout(0.4),
             nn.LeakyReLU(negative_slope=0.1),
             # Probe('linear1', forward=probe_dist),
             nn.Linear(4096, config.S * config.S * self.depth),                      # Linear 2
